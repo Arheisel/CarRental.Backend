@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CarRental.Infrastructure.Data
@@ -35,6 +36,20 @@ namespace CarRental.Infrastructure.Data
                 .HasForeignKey(r => r.CarId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+        }
+    }
+
+    internal class RentalProfile : Profile
+    {
+        public RentalProfile()
+        {
+            CreateMap<Domain.Entities.Rental, Rental>()
+                .ForMember(r => r.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
+                .ForMember(r => r.CarId, opt => opt.MapFrom(src => src.Car.Id))
+                .ForMember(r => r.Status, opt => opt.MapFrom(src => Enum.GetName(typeof(Domain.Entities.Rental.RentalStatus), src.Status)));
+
+            CreateMap<Rental, Domain.Entities.Rental>()
+                .ForMember(r => r.Status, opt => opt.MapFrom(src => Enum.Parse(typeof(Domain.Entities.Rental.RentalStatus), src.Status)));
         }
     }
 }

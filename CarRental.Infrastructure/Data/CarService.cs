@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.ComponentModel.DataAnnotations;
 
@@ -25,6 +26,15 @@ namespace CarRental.Infrastructure.Data
                 .HasForeignKey(s => s.CarId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+        }
+    }
+
+    internal class CarServiceProfile : Profile
+    {
+        public CarServiceProfile()
+        {
+            CreateMap<Domain.Entities.CarService, CarService>();
+            CreateMap<CarService, Domain.Entities.CarService>();
         }
     }
 }

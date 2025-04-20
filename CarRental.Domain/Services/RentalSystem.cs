@@ -3,7 +3,7 @@ using CarRental.Domain.Interfaces;
 
 namespace CarRental.Domain.Services
 {
-    public class RentalSystem(ICustomerChecker customerValidator)
+    public class RentalSystem(ICustomerChecker customerValidator) : IRentalSystem
     {
         private readonly ICustomerChecker _customerValidator = customerValidator;
 
@@ -18,9 +18,9 @@ namespace CarRental.Domain.Services
         /// <exception cref="InvalidOperationException"></exception>
         public async Task<Customer> RegisterCustomerAsync(string id, string fullName, string address)
         {
-            if (string.IsNullOrEmpty(fullName)) throw new ArgumentException("The Name provided is either null or empty", nameof(fullName));
-            if (string.IsNullOrEmpty(address)) throw new ArgumentException("The Address provided is either null or empty", nameof(address));
-            if (await _customerValidator.ExistsAsync(id)) throw new InvalidOperationException("Customer already exists");
+            if (string.IsNullOrEmpty(fullName)) throw new ApplicationException("The Name provided is either null or empty");
+            if (string.IsNullOrEmpty(address)) throw new ApplicationException("The Address provided is either null or empty");
+            if (await _customerValidator.ExistsAsync(id)) throw new ApplicationException("Customer already exists");
 
             return new Customer
             {
@@ -47,7 +47,8 @@ namespace CarRental.Domain.Services
         /// <exception cref="InvalidOperationException"></exception>
         public Rental RegisterRental(Customer customer, Car car, DateOnly startDate, DateOnly endDate)
         {
-            if (!car.IsAvailable(startDate, endDate)) throw new InvalidOperationException("The car is not available within the specified dates");
+            if (startDate >= endDate) throw new ApplicationException("The end date must be greater than the start date");
+            if (!car.IsAvailable(startDate, endDate)) throw new ApplicationException("The car is not available within the specified dates");
 
             var rental = new Rental
             {
@@ -75,11 +76,13 @@ namespace CarRental.Domain.Services
         /// <exception cref="InvalidOperationException"></exception>
         public Rental ModifyReservation(Rental rental, Car car, DateOnly startDate, DateOnly endDate)
         {
+            if (startDate >= endDate) throw new ApplicationException("The end date must be greater than the start date");
+
             rental.Car.Rentals.Remove(rental); //Remove the rental from the old car itself, probably not needed but better safe than sorry.
 
             if (rental.Car.Equals(car)) car.Rentals.Remove(rental); //Same here, this important for doing the IsAvailable call below.
 
-            if (!car.IsAvailable(startDate, endDate)) throw new InvalidOperationException("The car is not available within the specified dates");
+            if (!car.IsAvailable(startDate, endDate)) throw new ApplicationException("The car is not available within the specified dates");
 
             rental.Car = car;
             rental.StartDate = startDate;

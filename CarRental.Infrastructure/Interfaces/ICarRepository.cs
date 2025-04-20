@@ -1,10 +1,25 @@
-﻿namespace CarRental.Infrastructure.Interfaces
+﻿using CarRental.Domain.Entities;
+using CarRental.Infrastructure.Repositories;
+
+namespace CarRental.Infrastructure.Interfaces
 {
     public interface ICarRepository
     {
-        Task<Domain.Entities.Car?> GetAsync(Guid id);
-        Task AddAsync(Domain.Entities.Car entity);
-        Task UpdateAsync(Domain.Entities.Car entity);
-        Task DeleteAsync(Domain.Entities.Car entity);
+        Task<Car?> GetAsync(Guid id, LoadOptions options = LoadOptions.None);
+        Task AddAsync(Car entity);
+        Task UpdateAsync(Car entity);
+        Task DeleteAsync(Car entity);
+
+        [Flags]
+        public enum LoadOptions
+        {
+            None = 0,
+            AllServices = 1,
+            FutureServices = 2,
+            AllRentals = 4,
+            FutureRentals = 8,
+            Future = FutureServices | FutureRentals,
+            All = AllServices | AllRentals
+        }
     }
 }

@@ -1,13 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CarRental.Infrastructure.Data
 {
     public class Car : BaseRecord
     {
-        public required string Type { get; set; }
+        public required Guid TypeId { get; set; }
 
         public required string Model { get; set; }
+
+        public virtual CarType? Type { get; set; }
 
         public virtual ICollection<CarService> Services { get; set; } = new HashSet<CarService>();
 
@@ -18,13 +21,29 @@ namespace CarRental.Infrastructure.Data
     {
         public void Configure(EntityTypeBuilder<Car> builder)
         {
-            builder.Property(c => c.Type)
-                .HasMaxLength(50)
+            builder.HasOne(c => c.Type)
+                .WithMany(t => t.Cars)
+                .HasForeignKey(c => c.TypeId)
                 .IsRequired();
 
             builder.Property(c => c.Model)
                 .HasMaxLength(50)
                 .IsRequired();
+        }
+    }
+
+    internal class CarProfile : Profile
+    {
+        public CarProfile()
+        {
+            CreateMap<Domain.Entities.Car, Car>()
+                .AfterMap((src, dest) =>
+                {
+                    foreach (var service in dest.Services) service.CarId = dest.Id;
+                });
+
+            CreateMap<Car, Domain.Entities.Car>()
+                .ForMember(c => c.Type, opt => opt.MapFrom(src => src.Type!.Name));
         }
     }
 }

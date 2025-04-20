@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CarRental.Infrastructure.Data
@@ -32,6 +33,15 @@ namespace CarRental.Infrastructure.Data
 
             builder.HasIndex(c => c.CustomerId)
                 .IsUnique();
+        }
+    }
+
+    internal class CustomerProfile : Profile
+    {
+        public CustomerProfile()
+        {
+            CreateMap<Domain.Entities.Customer, Customer>();
+            CreateMap<Customer, Domain.Entities.Customer>();
         }
     }
 }

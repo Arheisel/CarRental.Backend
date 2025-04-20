@@ -1,10 +1,21 @@
-﻿namespace CarRental.Infrastructure.Interfaces
+﻿using CarRental.Domain.Entities;
+
+namespace CarRental.Infrastructure.Interfaces
 {
     public interface ICustomerRepository
     {
-        Task<Domain.Entities.Customer?> GetAsync(Guid id);
-        Task AddAsync(Domain.Entities.Customer entity);
-        Task UpdateAsync(Domain.Entities.Customer entity);
-        Task DeleteAsync(Domain.Entities.Customer entity);
+        Task<Customer?> GetAsync(Guid id, LoadOptions options = LoadOptions.None);
+        Task<Customer?> GetAsync(string customerId, LoadOptions options = LoadOptions.None);
+        Task AddAsync(Customer entity);
+        Task UpdateAsync(Customer entity);
+        Task DeleteAsync(Customer entity);
+
+        [Flags]
+        public enum LoadOptions
+        {
+            None = 0,
+            Rentals = 1,
+            All = Rentals
+        }
     }
 }

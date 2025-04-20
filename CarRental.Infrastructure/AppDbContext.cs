@@ -7,6 +7,8 @@ namespace CarRental.Infrastructure
     {
         public DbSet<Car> Cars { get; set; }
 
+        public DbSet<CarType> CarTypes { get; set; }
+
         public DbSet<CarService> CarServices { get; set; }
 
         public DbSet<Customer> Customers { get; set; }

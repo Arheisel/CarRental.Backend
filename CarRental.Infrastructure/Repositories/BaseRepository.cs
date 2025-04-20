@@ -10,7 +10,7 @@ namespace CarRental.Infrastructure.Repositories
         protected readonly AppDbContext _context = context;
         protected readonly IMapper _mapper = mapper;
 
-        public Task AddAsync(TDom entity)
+        public virtual Task AddAsync(TDom entity)
         {
             var e = _mapper.Map<TInf>(entity);
             e.DateAdded = DateTime.UtcNow;
@@ -18,7 +18,7 @@ namespace CarRental.Infrastructure.Repositories
             return _context.SaveChangesAsync();
         }
 
-        public Task UpdateAsync(TDom entity)
+        public virtual Task UpdateAsync(TDom entity)
         {
             var e = _mapper.Map<TInf>(entity);
             e.DateModified = DateTime.UtcNow;
@@ -26,7 +26,7 @@ namespace CarRental.Infrastructure.Repositories
             return _context.SaveChangesAsync();
         }
 
-        public Task DeleteAsync(TDom entity)
+        public virtual Task DeleteAsync(TDom entity)
         {
             var e = _mapper.Map<TInf>(entity);
             _context.Remove(e);
