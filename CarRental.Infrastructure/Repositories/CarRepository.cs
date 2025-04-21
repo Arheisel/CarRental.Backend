@@ -18,7 +18,8 @@ namespace CarRental.Infrastructure.Repositories
             }
             else if (options.HasFlag(LoadOptions.FutureServices))
             {
-                query = query.Include(c => c.Services.Where(s => s.Date >= DateOnly.FromDateTime(DateTime.UtcNow)));
+                var date = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-Domain.Entities.Car.ServiceDurationDays);
+                query = query.Include(c => c.Services.Where(s => s.Date >= date));
             }
 
             if (options.HasFlag(LoadOptions.AllRentals))
@@ -27,11 +28,56 @@ namespace CarRental.Infrastructure.Repositories
             }
             else if (options.HasFlag(LoadOptions.FutureRentals))
             {
-                query = query.Include(c => c.Rentals.Where(s => s.EndDate >= DateOnly.FromDateTime(DateTime.UtcNow)))
+                var date = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-Domain.Entities.Car.RentalEndDateOffset);
+                query = query.Include(c => c.Rentals.Where(s => s.EndDate >= date))
                     .ThenInclude(r => r.Customer);
             }
 
             return query;
+        }
+
+        public async Task<IList<Domain.Entities.Car>> GetAllAsync(LoadOptions options = LoadOptions.None)
+        {
+            var cars = await BuildGetQuery(options).ToListAsync();
+
+            return _mapper.Map<IList<Domain.Entities.Car>>(cars);
+        }
+
+        public async Task<IList<Domain.Entities.Car>> GetAllAsync(string type, LoadOptions options = LoadOptions.None)
+        {
+            var cars = await BuildGetQuery(options)
+                .Where(c => c.Type!.Name == type)
+                .ToListAsync();
+
+            return _mapper.Map<IList<Domain.Entities.Car>>(cars);
+        }
+
+        public async Task<IList<Domain.Entities.Car>> GetAvailableAsync(string type, DateOnly startDate, DateOnly endDate, LoadOptions options = LoadOptions.None)
+        {
+            var rentalStartDate = startDate.AddDays(-Domain.Entities.Car.RentalEndDateOffset);
+            var rentalEndDate = endDate.AddDays(Domain.Entities.Car.RentalEndDateOffset);
+            var serviceStartDate = startDate.AddDays(-Domain.Entities.Car.ServiceDurationDays);
+            var serviceEndDate = endDate.AddDays(Domain.Entities.Car.RentalEndDateOffset);
+            var canceledStatusName = Enum.GetName(typeof(Domain.Entities.Rental.RentalStatus), Domain.Entities.Rental.RentalStatus.Canceled);
+
+            var cars = await BuildGetQuery(options)
+                .Where(c => c.Type!.Name == type)
+                .Where(c => !c.Rentals.Any(r => r.Status != canceledStatusName && rentalStartDate <= r.EndDate && rentalEndDate >= r.StartDate))
+                .Where(c => !c.Services.Any(s => serviceStartDate <= s.Date && serviceEndDate >= s.Date))
+                .ToListAsync();
+
+            return _mapper.Map<IList<Domain.Entities.Car>>(cars);
+        }
+
+        public async Task<IList<Domain.Entities.Car>> GetCarsWithServicesAsync(DateOnly startDate, DateOnly endDate, LoadOptions options = LoadOptions.None)
+        {
+            startDate = startDate.AddDays(-Domain.Entities.Car.ServiceDurationDays);
+
+            var cars = await BuildGetQuery(options)
+                .Where(c => c.Services.Any(s => startDate <= s.Date && endDate >= s.Date))
+                .ToListAsync();
+
+            return _mapper.Map<IList<Domain.Entities.Car>>(cars);
         }
 
         public async Task<Domain.Entities.Car?> GetAsync(Guid id, LoadOptions options = LoadOptions.None)
@@ -42,6 +88,11 @@ namespace CarRental.Infrastructure.Repositories
             if (car == null) return null;
 
             return _mapper.Map<Domain.Entities.Car>(car);
+        }
+
+        public async Task<IList<string>> GetTypesAsync()
+        {
+            return await _context.CarTypes.Select(c => c.Name).ToListAsync();
         }
 
         public override async Task AddAsync(Domain.Entities.Car car)

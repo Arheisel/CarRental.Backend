@@ -37,6 +37,7 @@ namespace CarRental.Infrastructure.Data
         public CarProfile()
         {
             CreateMap<Domain.Entities.Car, Car>()
+                .ForMember(c => c.Type, opt => opt.Ignore())
                 .AfterMap((src, dest) =>
                 {
                     foreach (var service in dest.Services) service.CarId = dest.Id;

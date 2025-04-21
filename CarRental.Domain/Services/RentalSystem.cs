@@ -47,7 +47,7 @@ namespace CarRental.Domain.Services
         /// <exception cref="InvalidOperationException"></exception>
         public Rental RegisterRental(Customer customer, Car car, DateOnly startDate, DateOnly endDate)
         {
-            if (startDate >= endDate) throw new ApplicationException("The end date must be greater than the start date");
+            if (startDate > endDate) throw new ApplicationException("The end date must be greater or equal than the start date");
             if (!car.IsAvailable(startDate, endDate)) throw new ApplicationException("The car is not available within the specified dates");
 
             var rental = new Rental
@@ -76,7 +76,7 @@ namespace CarRental.Domain.Services
         /// <exception cref="InvalidOperationException"></exception>
         public Rental ModifyReservation(Rental rental, Car car, DateOnly startDate, DateOnly endDate)
         {
-            if (startDate >= endDate) throw new ApplicationException("The end date must be greater than the start date");
+            if (startDate > endDate) throw new ApplicationException("The end date must be greater or equal than the start date");
 
             rental.Car.Rentals.Remove(rental); //Remove the rental from the old car itself, probably not needed but better safe than sorry.
 

@@ -1,4 +1,14 @@
 
+using CarRental.API.Application.Interfaces;
+using CarRental.API.Application.Services;
+using CarRental.Domain.Interfaces;
+using CarRental.Domain.Services;
+using CarRental.Infrastructure;
+using CarRental.Infrastructure.Interfaces;
+using CarRental.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using UADE.Extensions.Middleware;
+
 namespace CarRental.API
 {
     public class Program
@@ -7,15 +17,39 @@ namespace CarRental.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            ConfigureServices(builder.Services);
 
             var app = builder.Build();
 
+            ConfigureApp(app);
+
+            app.Run();
+        }
+
+        private static void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllers();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen();
+
+            services.AddDbContext<AppDbContext>(opt => opt.UseSqlite("DataSource=car_rental.db"));
+
+            services.AddScoped<IRentalService, RentalService>();
+            services.AddScoped<IReportsService, ReportsService>();
+
+            services.AddScoped<ICarRepository, CarRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IRentalRepository, RentalRepository>();
+            
+            services.AddScoped<ICustomerChecker, CustomerRepository>();
+            services.AddScoped<IRentalSystem, RentalSystem>();
+
+            services.AddAutoMapper(typeof(Program).Assembly, typeof(AppDbContext).Assembly);
+        }
+
+        private static void ConfigureApp(WebApplication app)
+        {
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -25,12 +59,11 @@ namespace CarRental.API
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            // app.UseAuthorization();
 
+            app.UseExceptionsMiddleware();
 
             app.MapControllers();
-
-            app.Run();
         }
     }
 }

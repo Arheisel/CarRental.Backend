@@ -19,7 +19,7 @@
             None = 0,
             Valid = 1,
             Canceled = 2
-            //Other things could go here such as Pending, Returned, Completed, etc.
+            //Other things could go here such as Pending, CheckedOut, Returned, Completed, etc.
         }
 
         public bool Equals(Rental? other)

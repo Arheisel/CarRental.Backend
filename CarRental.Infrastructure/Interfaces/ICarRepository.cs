@@ -1,11 +1,15 @@
 ﻿using CarRental.Domain.Entities;
-using CarRental.Infrastructure.Repositories;
 
 namespace CarRental.Infrastructure.Interfaces
 {
     public interface ICarRepository
     {
+        Task<IList<Car>> GetAllAsync(LoadOptions options = LoadOptions.None);
+        Task<IList<Car>> GetAllAsync(string type, LoadOptions options = LoadOptions.None);
+        Task<IList<Car>> GetAvailableAsync(string type, DateOnly startDate, DateOnly endDate, LoadOptions options = LoadOptions.None);
+        Task<IList<Car>> GetCarsWithServicesAsync(DateOnly startDate, DateOnly endDate, LoadOptions options = LoadOptions.None);
         Task<Car?> GetAsync(Guid id, LoadOptions options = LoadOptions.None);
+        Task<IList<string>> GetTypesAsync();
         Task AddAsync(Car entity);
         Task UpdateAsync(Car entity);
         Task DeleteAsync(Car entity);

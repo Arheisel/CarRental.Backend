@@ -2,6 +2,9 @@
 {
     public class Car : IEquatable<Car>
     {
+        public const int RentalEndDateOffset = 1;
+        public const int ServiceDurationDays = 1;
+
         public required Guid Id { get; set; }
 
         public required string Type { get; set; }
@@ -13,8 +16,8 @@
 
         public bool IsAvailable(DateOnly startDate, DateOnly endDate)
         {
-            return Rentals.All(r => r.Status == Rental.RentalStatus.Canceled || r.StartDate > endDate || r.EndDate.AddDays(1) < startDate)
-                && Services.All(s => s.Date > endDate || s.Date.AddDays(1) < startDate);
+            return !Rentals.Any(r => r.Status != Rental.RentalStatus.Canceled && startDate <= r.EndDate.AddDays(RentalEndDateOffset) && endDate.AddDays(RentalEndDateOffset) >= r.StartDate)
+                && !Services.Any(s => startDate <= s.Date.AddDays(ServiceDurationDays) && endDate >= s.Date);
         }
 
         public bool Equals(Car? other)

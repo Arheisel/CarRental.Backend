@@ -9,22 +9,9 @@ namespace CarRental.Infrastructure.Repositories
 {
     public class CustomerRepository(AppDbContext context, IMapper mapper) : BaseRepository<Domain.Entities.Customer, Customer>(context, mapper), ICustomerRepository, ICustomerChecker
     {
-        private IQueryable<Customer> BuildGetQuery(LoadOptions options)
+        public async Task<Domain.Entities.Customer?> GetAsync(Guid id)
         {
-            IQueryable <Customer> query = _context.Customers;
-
-            if (options.HasFlag(LoadOptions.Rentals))
-            {
-                query = query.Include(c => c.Rentals)
-                    .ThenInclude(r => r.Car);
-            }
-
-            return query;
-        }
-
-        public async Task<Domain.Entities.Customer?> GetAsync(Guid id, LoadOptions options = LoadOptions.None)
-        {
-            var customer = await BuildGetQuery(options)
+            var customer = await _context.Customers
                 .SingleOrDefaultAsync(c => c.Id == id);
 
             if (customer == null) return null;
@@ -32,9 +19,9 @@ namespace CarRental.Infrastructure.Repositories
             return _mapper.Map<Domain.Entities.Customer>(customer);
         }
 
-        public async Task<Domain.Entities.Customer?> GetAsync(string customerId, LoadOptions options = LoadOptions.None)
+        public async Task<Domain.Entities.Customer?> GetAsync(string customerId)
         {
-            var customer = await BuildGetQuery(options)
+            var customer = await _context.Customers
                 .SingleOrDefaultAsync(c => c.CustomerId == customerId);
 
             if (customer == null) return null;
