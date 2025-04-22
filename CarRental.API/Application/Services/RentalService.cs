@@ -22,6 +22,11 @@ namespace CarRental.API.Application.Services
 
         public async Task<IList<CarDto>> GetAvailableCars(string type, DateOnly startDate, DateOnly endDate)
         {
+            if (string.IsNullOrWhiteSpace(type)) throw new ApplicationException("Type was not provided");
+            if (startDate == default) throw new ApplicationException("Invalid start date");
+            if (endDate == default) throw new ApplicationException("Invalid end date");
+            
+
             var cars = await _carRepository.GetAvailableAsync(type, startDate, endDate, ICarRepository.LoadOptions.None);
 
             return _mapper.Map<IList<CarDto>>(cars);
@@ -42,6 +47,8 @@ namespace CarRental.API.Application.Services
             if (string.IsNullOrWhiteSpace(dto.CustomerId)) throw new ApplicationException("Customer ID cannot be empty");
             if (string.IsNullOrWhiteSpace(dto.CustomerName)) throw new ApplicationException("Customer Name cannot be empty");
             if (string.IsNullOrWhiteSpace(dto.CustomerAddress)) throw new ApplicationException("Customer Address cannot be empty");
+            if (dto.StartDate == default) throw new ApplicationException("Invalid start date");
+            if (dto.EndDate == default) throw new ApplicationException("Invalid end date");
 
             var car = await _carRepository.GetAsync(dto.CarId, ICarRepository.LoadOptions.Future)
                 ?? throw new NotFoundException($"The selected car was not found");
@@ -57,6 +64,9 @@ namespace CarRental.API.Application.Services
 
         public async Task ModifyReservationAsync(Guid rentalId, UpdateRentalDto dto)
         {
+            if (dto.StartDate == default) throw new ApplicationException("Invalid start date");
+            if (dto.EndDate == default) throw new ApplicationException("Invalid end date");
+
             var rental = await _rentalRepository.GetAsync(rentalId)
                 ?? throw new NotFoundException($"The reservation was not found");
 

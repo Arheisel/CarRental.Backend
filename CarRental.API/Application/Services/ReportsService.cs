@@ -11,11 +11,14 @@ namespace CarRental.API.Application.Services
         private readonly IRentalRepository _rentalRepository = rentalRepository;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<IList<CarServiceDto>> GetCarsWithServicesAsync(DateOnly startDate, DateOnly endDate)
+        public async Task<IList<CarServiceReportDto>> GetCarsWithServicesAsync(DateOnly startDate, DateOnly endDate)
         {
+            if (startDate == default) throw new ApplicationException("Invalid start date");
+            if (endDate == default) throw new ApplicationException("Invalid end date");
+
             var cars = await _carRepository.GetCarsWithServicesAsync(startDate, endDate, ICarRepository.LoadOptions.FutureServices);
 
-            return cars.Select(car => new CarServiceDto
+            return cars.Select(car => new CarServiceReportDto
             {
                 Car = _mapper.Map<CarDto>(car),
                 Date = car.Services.OrderBy(s => s.Date).First().Date
@@ -25,6 +28,9 @@ namespace CarRental.API.Application.Services
 
         public async Task<IList<UtilizationByTypeReportDto>> GetRentalsByType(DateOnly startDate, DateOnly endDate)
         {
+            if (startDate == default) throw new ApplicationException("Invalid start date");
+            if (endDate == default) throw new ApplicationException("Invalid end date");
+
             var rentals = await _rentalRepository.GetAllBetweenDatesAsync(startDate, endDate);
 
             return rentals.GroupBy(r => r.Car.Type)

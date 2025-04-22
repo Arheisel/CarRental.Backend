@@ -1,6 +1,6 @@
 ﻿namespace CarRental.API.Application.DTOs
 {
-    public class CarServiceDto
+    public class CarServiceReportDto
     {
         public required CarDto Car { get; set; }
 

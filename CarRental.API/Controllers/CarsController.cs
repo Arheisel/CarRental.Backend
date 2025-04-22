@@ -20,9 +20,9 @@ namespace CarRental.API.Controllers
 
         [HttpGet("available")]
         [ProducesResponseType<IList<CarDto>>(200)]
-        public async Task<IActionResult> GetAvailable([FromQuery] string type, [FromQuery] DateOnly startDate, [FromQuery] DateOnly endDate)
+        public async Task<IActionResult> GetAvailable([FromQuery] string type, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            return Ok(await _rentalService.GetAvailableCars(type, startDate, endDate));
+            return Ok(await _rentalService.GetAvailableCars(type, DateOnly.FromDateTime(startDate), DateOnly.FromDateTime(endDate)));
         }
     }
 }

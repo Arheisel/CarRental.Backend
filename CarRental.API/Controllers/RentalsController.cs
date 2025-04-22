@@ -27,7 +27,7 @@ namespace CarRental.API.Controllers
             return Ok();
         }
 
-        [HttpPut("{id}/cancel")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(200)]
         public async Task<IActionResult> CancelRental([FromRoute] Guid id)
         {

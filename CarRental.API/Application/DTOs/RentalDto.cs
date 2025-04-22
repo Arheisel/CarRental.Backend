@@ -7,8 +7,6 @@ namespace CarRental.API.Application.DTOs
     {
         public required Guid Id { get; set; }
 
-        public required CustomerDto Customer { get; set; }
-
         public required DateOnly StartDate { get; set; }
 
         public required DateOnly EndDate { get; set; }
