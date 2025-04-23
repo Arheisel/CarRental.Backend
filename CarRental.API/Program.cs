@@ -41,7 +41,7 @@ namespace CarRental.API
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
-            services.AddDbContext<AppDbContext>(opt => opt.UseSqlite("DataSource=car_rental.db"));
+            services.AddDbContext<AppDbContext>(opt => opt.UseSqlite("DataSource=car_rental.db"), ServiceLifetime.Transient);
 
             services.AddScoped<IRentalService, RentalService>();
             services.AddScoped<IReportsService, ReportsService>();

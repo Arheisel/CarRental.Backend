@@ -27,9 +27,9 @@ namespace CarRental.API.Controllers
 
         [HttpGet("{id}/isAvailable")]
         [ProducesResponseType<bool>(200)]
-        public async Task<IActionResult> GetAvailable([FromRoute] Guid carId, [FromQuery] Guid? rentalId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> GetAvailable([FromRoute] Guid id, [FromQuery] Guid? rentalId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            return Ok(await _rentalService.CheckAvailability(carId, DateOnly.FromDateTime(startDate), DateOnly.FromDateTime(endDate), rentalId));
+            return Ok(await _rentalService.CheckAvailability(id, DateOnly.FromDateTime(startDate), DateOnly.FromDateTime(endDate), rentalId));
         }
     }
 }

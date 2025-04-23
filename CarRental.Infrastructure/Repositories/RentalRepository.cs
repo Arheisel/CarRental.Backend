@@ -9,9 +9,10 @@ namespace CarRental.Infrastructure.Repositories
     {
         private IQueryable<Rental> BuildGetQuery()
         {
-            return _context.Rentals
+            return _context.Rentals.AsNoTracking()
                 .Include(r => r.Customer)
-                .Include(r => r.Car);
+                .Include(r => r.Car)
+                    .ThenInclude(c => c!.Type);
         }
 
         public async Task<Domain.Entities.Rental?> GetAsync(Guid id)

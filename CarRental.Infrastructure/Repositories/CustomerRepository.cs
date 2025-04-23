@@ -9,9 +9,14 @@ namespace CarRental.Infrastructure.Repositories
 {
     public class CustomerRepository(AppDbContext context, IMapper mapper) : BaseRepository<Domain.Entities.Customer, Customer>(context, mapper), ICustomerRepository, ICustomerChecker
     {
+        private IQueryable<Customer> BuildGetQuery()
+        {
+            return _context.Customers.AsNoTracking();
+        }
+
         public async Task<Domain.Entities.Customer?> GetAsync(Guid id)
         {
-            var customer = await _context.Customers
+            var customer = await BuildGetQuery()
                 .SingleOrDefaultAsync(c => c.Id == id);
 
             if (customer == null) return null;
@@ -21,7 +26,7 @@ namespace CarRental.Infrastructure.Repositories
 
         public async Task<Domain.Entities.Customer?> GetAsync(string customerId)
         {
-            var customer = await _context.Customers
+            var customer = await BuildGetQuery()
                 .SingleOrDefaultAsync(c => c.CustomerId == customerId);
 
             if (customer == null) return null;

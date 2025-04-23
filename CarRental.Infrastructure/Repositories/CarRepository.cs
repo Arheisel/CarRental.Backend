@@ -10,7 +10,7 @@ namespace CarRental.Infrastructure.Repositories
     {
         private IQueryable<Car> BuildGetQuery(LoadOptions options)
         {
-            IQueryable<Car> query = _context.Cars.Include(c => c.Type);
+            IQueryable<Car> query = _context.Cars.AsNoTracking().Include(c => c.Type);
 
             if (options.HasFlag(LoadOptions.AllServices))
             {

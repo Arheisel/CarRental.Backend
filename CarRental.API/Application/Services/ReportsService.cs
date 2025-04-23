@@ -33,7 +33,7 @@ namespace CarRental.API.Application.Services
 
             var rentals = await _rentalRepository.GetAllBetweenDatesAsync(startDate, endDate);
 
-            return rentals.GroupBy(r => r.Car.Type)
+            return rentals.Where(r => r.Status != Domain.Entities.Rental.RentalStatus.Canceled).GroupBy(r => r.Car.Type)
                 .Select(group => new UtilizationByTypeReportDto
                 {
                     Type = group.Key,
