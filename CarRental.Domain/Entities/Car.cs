@@ -14,9 +14,13 @@
         public ICollection<CarService> Services { get; set; } = new List<CarService>();
         public ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 
-        public bool IsAvailable(DateOnly startDate, DateOnly endDate)
+        public bool IsAvailable(DateOnly startDate, DateOnly endDate, Guid? ignoreRental = null)
         {
-            return !Rentals.Any(r => r.Status != Rental.RentalStatus.Canceled && startDate <= r.EndDate.AddDays(RentalEndDateOffset) && endDate.AddDays(RentalEndDateOffset) >= r.StartDate)
+            IEnumerable<Rental> rentals;
+            if (ignoreRental.HasValue) rentals = Rentals.Where(r => r.Id != ignoreRental.Value);
+            else rentals = Rentals;
+
+            return !rentals.Any(r => r.Status != Rental.RentalStatus.Canceled && startDate <= r.EndDate.AddDays(RentalEndDateOffset) && endDate.AddDays(RentalEndDateOffset) >= r.StartDate)
                 && !Services.Any(s => startDate <= s.Date.AddDays(ServiceDurationDays) && endDate >= s.Date);
         }
 

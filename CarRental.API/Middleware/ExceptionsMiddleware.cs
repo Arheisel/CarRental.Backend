@@ -41,7 +41,13 @@ namespace UADE.Extensions.Middleware
                 
                 context.Response.StatusCode = (int)statusCode;
                 context.Response.ContentType = "application/json";
-                await context.Response.WriteAsync(JsonSerializer.Serialize(error));
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                };
+
+                await context.Response.WriteAsync(JsonSerializer.Serialize(error, options));
             }
         }
 

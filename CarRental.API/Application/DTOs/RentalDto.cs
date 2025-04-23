@@ -11,6 +11,8 @@ namespace CarRental.API.Application.DTOs
 
         public required DateOnly EndDate { get; set; }
 
+        public required CustomerDto Customer { get; set; }
+
         public required CarDto Car { get; set; }
 
         public required string Status { get; set; }

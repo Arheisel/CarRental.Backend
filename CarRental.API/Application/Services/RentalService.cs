@@ -32,6 +32,18 @@ namespace CarRental.API.Application.Services
             return _mapper.Map<IList<CarDto>>(cars);
         }
 
+        public async Task<bool> CheckAvailability(Guid carId, DateOnly startDate, DateOnly endDate, Guid? rentalId = null)
+        {
+            if (carId == default) throw new ApplicationException("Invalid Car ID");
+            if (startDate == default) throw new ApplicationException("Invalid start date");
+            if (endDate == default) throw new ApplicationException("Invalid end date");
+
+            var car = await _carRepository.GetAsync(carId, ICarRepository.LoadOptions.Future)
+                ?? throw new NotFoundException($"The selected car was not found");
+
+            return car.IsAvailable(startDate, endDate, rentalId);
+        }
+
         public async Task<IList<RentalDto>> GetRentalsAsync(string customerId)
         {
             var customer = await _customerRepository.GetAsync(customerId)
@@ -42,11 +54,12 @@ namespace CarRental.API.Application.Services
             return _mapper.Map<IList<RentalDto>>(rentals.OrderBy(r => r.StartDate));
         }
 
-        public async Task RegisterRentalAsync(AddRentalDto dto)
+        public async Task<RentalDto> RegisterRentalAsync(AddRentalDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.CustomerId)) throw new ApplicationException("Customer ID cannot be empty");
             if (string.IsNullOrWhiteSpace(dto.CustomerName)) throw new ApplicationException("Customer Name cannot be empty");
             if (string.IsNullOrWhiteSpace(dto.CustomerAddress)) throw new ApplicationException("Customer Address cannot be empty");
+            if (dto.CarId == default) throw new ApplicationException("Invalid Car ID");
             if (dto.StartDate == default) throw new ApplicationException("Invalid start date");
             if (dto.EndDate == default) throw new ApplicationException("Invalid end date");
 
@@ -55,15 +68,23 @@ namespace CarRental.API.Application.Services
 
             var customer = await _customerRepository.GetAsync(dto.CustomerId);
 
-            customer ??= await _rentalSystem.RegisterCustomerAsync(dto.CustomerId, dto.CustomerName, dto.CustomerAddress);
+            if (customer == null)
+            {
+                customer = await _rentalSystem.RegisterCustomerAsync(dto.CustomerId, dto.CustomerName, dto.CustomerAddress);
+                await _customerRepository.AddAsync(customer);
+            }
 
-            var rental = _rentalSystem.RegisterRental(customer, car, dto.StartDate, dto.EndDate);
+            var rental = _rentalSystem.RegisterRental(customer, car, DateOnly.FromDateTime(dto.StartDate), DateOnly.FromDateTime(dto.EndDate));
 
             await _rentalRepository.AddAsync(rental);
+
+            return _mapper.Map<RentalDto>(rental);
         }
 
-        public async Task ModifyReservationAsync(Guid rentalId, UpdateRentalDto dto)
+        public async Task<RentalDto> ModifyReservationAsync(Guid rentalId, UpdateRentalDto dto)
         {
+            if (rentalId == default) throw new ApplicationException("Invalid Rental ID");
+            if (dto.CarId == default) throw new ApplicationException("Invalid Car ID");
             if (dto.StartDate == default) throw new ApplicationException("Invalid start date");
             if (dto.EndDate == default) throw new ApplicationException("Invalid end date");
 
@@ -73,19 +94,25 @@ namespace CarRental.API.Application.Services
             var car = await _carRepository.GetAsync(dto.CarId, ICarRepository.LoadOptions.Future)
                 ?? throw new NotFoundException($"The selected car was not found");
 
-            rental = _rentalSystem.ModifyReservation(rental, car, dto.StartDate, dto.EndDate);
+            rental = _rentalSystem.ModifyReservation(rental, car, DateOnly.FromDateTime(dto.StartDate), DateOnly.FromDateTime(dto.EndDate));
 
             await _rentalRepository.UpdateAsync(rental);
+
+            return _mapper.Map<RentalDto>(rental);
         }
 
-        public async Task CancelRentalAsync(Guid rentalId)
+        public async Task<RentalDto> CancelRentalAsync(Guid rentalId)
         {
+            if (rentalId == default) throw new ApplicationException("Invalid Rental ID");
+
             var rental = await _rentalRepository.GetAsync(rentalId)
                 ?? throw new NotFoundException($"The reservation was not found");
 
             rental = _rentalSystem.CancelRental(rental);
 
             await _rentalRepository.UpdateAsync(rental);
+
+            return _mapper.Map<RentalDto>(rental);
         }
     }
 }

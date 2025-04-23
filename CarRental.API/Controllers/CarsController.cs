@@ -18,11 +18,18 @@ namespace CarRental.API.Controllers
             return Ok(await _rentalService.GetCarTypes());
         }
 
-        [HttpGet("available")]
+        [HttpGet("search")]
         [ProducesResponseType<IList<CarDto>>(200)]
         public async Task<IActionResult> GetAvailable([FromQuery] string type, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             return Ok(await _rentalService.GetAvailableCars(type, DateOnly.FromDateTime(startDate), DateOnly.FromDateTime(endDate)));
+        }
+
+        [HttpGet("{id}/isAvailable")]
+        [ProducesResponseType<bool>(200)]
+        public async Task<IActionResult> GetAvailable([FromRoute] Guid carId, [FromQuery] Guid? rentalId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            return Ok(await _rentalService.CheckAvailability(carId, DateOnly.FromDateTime(startDate), DateOnly.FromDateTime(endDate), rentalId));
         }
     }
 }

@@ -31,11 +31,6 @@ namespace CarRental.Domain.Services
             };
         }
 
-        public bool CheckAvailability(Car car, DateOnly startDate, DateOnly endDate)
-        {
-            return car.IsAvailable(startDate, endDate);
-        }
-
         /// <summary>
         /// Creates a new rental and returns it.
         /// </summary>

@@ -38,10 +38,8 @@ namespace CarRental.Infrastructure.Data
         {
             CreateMap<Domain.Entities.Car, Car>()
                 .ForMember(c => c.Type, opt => opt.Ignore())
-                .AfterMap((src, dest) =>
-                {
-                    foreach (var service in dest.Services) service.CarId = dest.Id;
-                });
+                .ForMember(r => r.Services, opt => opt.Ignore())
+                .ForMember(r => r.Rentals, opt => opt.Ignore());
 
             CreateMap<Car, Domain.Entities.Car>()
                 .ForMember(c => c.Type, opt => opt.MapFrom(src => src.Type!.Name));

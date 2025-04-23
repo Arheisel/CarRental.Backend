@@ -46,7 +46,9 @@ namespace CarRental.Infrastructure.Data
             CreateMap<Domain.Entities.Rental, Rental>()
                 .ForMember(r => r.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
                 .ForMember(r => r.CarId, opt => opt.MapFrom(src => src.Car.Id))
-                .ForMember(r => r.Status, opt => opt.MapFrom(src => Enum.GetName(typeof(Domain.Entities.Rental.RentalStatus), src.Status)));
+                .ForMember(r => r.Status, opt => opt.MapFrom(src => Enum.GetName(typeof(Domain.Entities.Rental.RentalStatus), src.Status)))
+                .ForMember(r => r.Customer, opt => opt.Ignore())
+                .ForMember(r => r.Car, opt => opt.Ignore());
 
             CreateMap<Rental, Domain.Entities.Rental>()
                 .ForMember(r => r.Status, opt => opt.MapFrom(src => Enum.Parse(typeof(Domain.Entities.Rental.RentalStatus), src.Status)));

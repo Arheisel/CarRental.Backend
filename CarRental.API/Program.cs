@@ -7,6 +7,7 @@ using CarRental.Infrastructure;
 using CarRental.Infrastructure.Interfaces;
 using CarRental.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using UADE.Extensions.Middleware;
 
 namespace CarRental.API
@@ -28,6 +29,13 @@ namespace CarRental.API
 
         private static void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(o => o.AddDefaultPolicy(builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
@@ -58,6 +66,7 @@ namespace CarRental.API
             }
 
             app.UseHttpsRedirection();
+            app.UseCors();
 
             // app.UseAuthorization();
 

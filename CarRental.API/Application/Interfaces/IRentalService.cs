@@ -6,9 +6,10 @@ namespace CarRental.API.Application.Interfaces
     {
         Task<IList<string>> GetCarTypes();
         Task<IList<CarDto>> GetAvailableCars(string type, DateOnly startDate, DateOnly endDate);
+        Task<bool> CheckAvailability(Guid carId, DateOnly startDate, DateOnly endDate, Guid? rentalId = null);
         Task<IList<RentalDto>> GetRentalsAsync(string customerId);
-        Task RegisterRentalAsync(AddRentalDto dto);
-        Task ModifyReservationAsync(Guid rentalId, UpdateRentalDto dto);
-        Task CancelRentalAsync(Guid rentalId);
+        Task<RentalDto> RegisterRentalAsync(AddRentalDto dto);
+        Task<RentalDto> ModifyReservationAsync(Guid rentalId, UpdateRentalDto dto);
+        Task<RentalDto> CancelRentalAsync(Guid rentalId);
     }
 }
